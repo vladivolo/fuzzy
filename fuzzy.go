@@ -23,13 +23,13 @@ type Match struct {
 	Score int
 }
 
-const (
-	firstCharMatchBonus            = 10
-	matchFollowingSeparatorBonus   = 20
-	camelCaseMatchBonus            = 20
-	adjacentMatchBonus             = 5
-	unmatchedLeadingCharPenalty    = -5
-	maxUnmatchedLeadingCharPenalty = -15
+var (
+	FirstCharMatchBonus            = 10
+	MatchFollowingSeparatorBonus   = 20
+	CamelCaseMatchBonus            = 20
+	AdjacentMatchBonus             = 5
+	UnmatchedLeadingCharPenalty    = -5
+	MaxUnmatchedLeadingCharPenalty = -15
 )
 
 var separators = []rune("/-_ .\\")
@@ -116,13 +116,13 @@ func FindFrom(pattern string, data Source) Matches {
 			if equalFold(candidate, runes[patternIndex]) {
 				score = 0
 				if j == 0 {
-					score += firstCharMatchBonus
+					score += FirstCharMatchBonus
 				}
 				if unicode.IsLower(last) && unicode.IsUpper(candidate) {
-					score += camelCaseMatchBonus
+					score += CamelCaseMatchBonus
 				}
 				if j != 0 && isSeparator(last) {
-					score += matchFollowingSeparatorBonus
+					score += MatchFollowingSeparatorBonus
 				}
 				if len(match.MatchedIndexes) > 0 {
 					lastMatch := match.MatchedIndexes[len(match.MatchedIndexes)-1]
@@ -158,8 +158,8 @@ func FindFrom(pattern string, data Source) Matches {
 			if equalFold(nextp, nextc) || nextc == 0 {
 				if matchedIndex > -1 {
 					if len(match.MatchedIndexes) == 0 {
-						penalty := matchedIndex * unmatchedLeadingCharPenalty
-						bestScore += max(penalty, maxUnmatchedLeadingCharPenalty)
+						penalty := matchedIndex * UnmatchedLeadingCharPenalty
+						bestScore += max(penalty, MaxUnmatchedLeadingCharPenalty)
 					}
 					match.Score += bestScore
 					match.MatchedIndexes = append(match.MatchedIndexes, matchedIndex)
@@ -213,7 +213,7 @@ func equalFold(tr, sr rune) bool {
 
 func adjacentCharBonus(i int, lastMatch int, currentBonus int) int {
 	if lastMatch == i {
-		return currentBonus*2 + adjacentMatchBonus
+		return currentBonus*2 + AdjacentMatchBonus
 	}
 	return 0
 }
